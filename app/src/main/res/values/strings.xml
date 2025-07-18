@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">CashyndoApp</string>
+    <string name="app_name">Cashyndo</string>
+    <string name="default_web_client_id">460834505774-hc3s4tet9nebbclu4f7eaehu23huvb38.apps.googleusercontent.com</string>
 </resources>
