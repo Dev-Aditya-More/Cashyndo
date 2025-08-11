@@ -27,7 +27,7 @@ fun MainScreen() {
                 HomeScreen()
             }
             composable("transactions") {
-                TransactionsScreen(bottomNavController)
+                TransactionsScreen(onAddClick = {}, bottomNavController)
             }
             composable("analytics") {
                 AnalyticsScreen(bottomNavController)

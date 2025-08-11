@@ -67,9 +67,12 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.firebase.auth)
+    implementation("androidx.compose.material3:material3:1.4.0-alpha10")
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.ui.text.google.fonts)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -52,7 +52,6 @@ fun AuthScreen(
 ) {
     val user by viewModel.user.collectAsState()
     val scope = rememberCoroutineScope()
-
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -82,7 +81,6 @@ fun AuthScreen(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.padding(32.dp)
         ) {
-            // App Branding or Logo
             Text(
                 text = "Welcome to Cashyndo",
                 style = MaterialTheme.typography.headlineMedium,
@@ -119,7 +117,6 @@ fun AuthScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Terms or Footer
             Text(
                 text = "By continuing, you agree to our Terms and Privacy Policy",
                 style = MaterialTheme.typography.bodySmall,
