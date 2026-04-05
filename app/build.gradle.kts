@@ -4,10 +4,11 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
     id("org.jetbrains.kotlin.plugin.serialization") version "2.2.0"
+    id("kotlin-kapt")
 }
 
 android {
-    namespace = "com.example.cashyndoapp"
+    namespace = "com.aditya1875.cashyndoapp"
     compileSdk = 36
 
     defaultConfig {
@@ -73,6 +74,7 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
