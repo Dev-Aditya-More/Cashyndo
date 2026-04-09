@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.aditya1875.cashyndoapp"
+    namespace = "com.aditya1875.payu"
     compileSdk = 36
 
     defaultConfig {
