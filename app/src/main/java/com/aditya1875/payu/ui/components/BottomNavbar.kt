@@ -3,6 +3,7 @@ package com.aditya1875.payu.ui.components
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -19,7 +20,8 @@ fun BottomNavbar(navController: NavController) {
 
     val items = listOf(
         BottomNavItem(Route.Home, Icons.Default.Home, "Home"),
-        BottomNavItem(Route.Transactions, Icons.Default.AccountBalanceWallet, "Balances"),
+        BottomNavItem(Route.Balances, Icons.Default.AccountBalanceWallet, "Balances"),
+        BottomNavItem(Route.Insights, Icons.Default.Insights, "Insights"),
         BottomNavItem(Route.Profile, Icons.Default.Person, "Profile")
     )
 

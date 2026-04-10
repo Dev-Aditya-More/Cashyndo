@@ -1,5 +1,7 @@
 package com.aditya1875.payu.ui.presentation.profile.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,9 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.*
@@ -24,22 +23,27 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aditya1875.payu.ui.presentation.profile.viewmodel.ProfileViewModel
-import com.aditya1875.payu.ui.presentation.transaction.viewmodel.TransactionViewModel
+import com.aditya1875.payu.ui.presentation.balances.viewmodel.TransactionViewModel
+import com.aditya1875.payu.ui.presentation.home.viewmodel.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth
 import org.koin.androidx.compose.koinViewModel
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel = koinViewModel(),
+    homeViewModel: HomeViewModel = koinViewModel(),
     transactionViewModel: TransactionViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
 
-    val transactionState by transactionViewModel.state.collectAsStateWithLifecycle()
+    val totalExpense by transactionViewModel.totalExpense.collectAsStateWithLifecycle()
+    val balance by transactionViewModel.balance.collectAsStateWithLifecycle()
 
     var isPreview by remember { mutableStateOf(true) }
+
+    var showSheet by remember { mutableStateOf(false) }
 
     // Edit fields
     var editName by remember { mutableStateOf("") }
@@ -57,17 +61,7 @@ fun ProfileScreen(
     val userEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
 
     Scaffold(
-        containerColor = background,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {},
-                containerColor = onBackground,
-                contentColor = background,
-                shape = RoundedCornerShape(50)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
-            }
-        }
+        containerColor = background
     ) { innerPadding ->
 
         Column(
@@ -102,27 +96,9 @@ fun ProfileScreen(
                     "PayU",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                 )
-                Spacer(Modifier.weight(1f))
-                IconButton(onClick = {}) {
-                    Icon(Icons.Default.Search, contentDescription = "Search")
-                }
-                Box {
-                    IconButton(onClick = {}) {
-                        Icon(Icons.Default.Notifications, contentDescription = "Notifications")
-                    }
-                    Box(
-                        modifier = Modifier
-                            .size(18.dp)
-                            .clip(RoundedCornerShape(50))
-                            .background(Color.Red)
-                            .align(Alignment.TopEnd)
-                            .offset(x = (-4).dp, y = 4.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("2", style = MaterialTheme.typography.labelSmall.copy(color = Color.White, fontSize = 10.sp))
-                    }
-                }
             }
+
+            Spacer(Modifier.height(25.dp))
 
             Row(
                 modifier = Modifier
@@ -174,7 +150,6 @@ fun ProfileScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // ── Preview Content ──────────────────────
             AnimatedVisibility(
                 visible = isPreview,
                 enter = fadeIn() + slideInHorizontally(),
@@ -183,22 +158,21 @@ fun ProfileScreen(
                 Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                     ProfileInfoRow(
                         label = "Total spendings:",
-                        value = "₹${transactionViewModel.totalExpense}"
+                        value = "₹${totalExpense}"
                     )
                     Spacer(Modifier.height(16.dp))
                     ProfileInfoRow(
-                        label = "Email :",
+                        label = "Email:",
                         value = userEmail
                     )
                     Spacer(Modifier.height(16.dp))
                     ProfileInfoRow(
-                        label = "Balance :",
-                        value = "₹${transactionViewModel.balance}"
+                        label = "Balance:",
+                        value = "₹${balance}"
                     )
                 }
             }
 
-            // ── Edit Content ─────────────────────────
             AnimatedVisibility(
                 visible = !isPreview,
                 enter = fadeIn() + slideInHorizontally(initialOffsetX = { it }),

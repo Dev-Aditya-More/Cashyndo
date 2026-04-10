@@ -1,4 +1,4 @@
-package com.aditya1875.payu.ui.presentation.transaction.viewmodel
+package com.aditya1875.payu.ui.presentation.balances.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

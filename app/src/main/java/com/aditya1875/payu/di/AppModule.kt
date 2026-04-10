@@ -14,10 +14,9 @@ import com.aditya1875.payu.domain.usecases.GetHomeDataUseCase
 import com.aditya1875.payu.domain.usecases.GetTransactionsUseCase
 import com.aditya1875.payu.domain.usecases.UpdateTransactionUseCase
 import com.aditya1875.payu.ui.auth.viewmodel.AuthViewModel
-import com.aditya1875.payu.ui.presentation.analytics.viewmodel.AnalyticsViewModel
 import com.aditya1875.payu.ui.presentation.home.viewmodel.HomeViewModel
 import com.aditya1875.payu.ui.presentation.profile.viewmodel.ProfileViewModel
-import com.aditya1875.payu.ui.presentation.transaction.viewmodel.TransactionViewModel
+import com.aditya1875.payu.ui.presentation.balances.viewmodel.TransactionViewModel
 import com.google.firebase.auth.FirebaseAuth
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
@@ -59,7 +58,6 @@ val appModule = module {
     viewModelOf(::HomeViewModel)
     viewModelOf(::TransactionViewModel)
     viewModelOf(::ProfileViewModel)
-    viewModelOf(::AnalyticsViewModel)
 
     // Google Auth
     singleOf(::GoogleAuthUIClient)

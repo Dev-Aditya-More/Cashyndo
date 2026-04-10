@@ -13,7 +13,8 @@ sealed class Route(val route: String) {
 
     // Bottom Navigation
     object Home : Route("home")
-    object Transactions : Route("transactions")
+    object Balances : Route("balances")
+    object Insights : Route("insights")
     object Profile : Route("profile")
 
     object TransactionDetail : Route("transaction_detail/{id}") {

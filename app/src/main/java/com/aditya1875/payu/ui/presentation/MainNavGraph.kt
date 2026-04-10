@@ -11,9 +11,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.aditya1875.payu.ui.components.BottomNavbar
 import com.aditya1875.payu.ui.navigation.Route
+import com.aditya1875.payu.ui.presentation.balances.screens.BalancesScreen
 import com.aditya1875.payu.ui.presentation.home.screens.HomeScreen
 import com.aditya1875.payu.ui.presentation.profile.screens.ProfileScreen
-import com.aditya1875.payu.ui.presentation.transaction.screens.TransactionsScreen
+import com.aditya1875.payu.ui.presentation.insights.screens.InsightsScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -34,8 +35,12 @@ fun MainNavGraph() {
                 HomeScreen()
             }
 
-            composable(Route.Transactions.route) {
-                TransactionsScreen(navController = bottomNavController)
+            composable(Route.Balances.route) {
+                BalancesScreen()
+            }
+
+            composable(Route.Insights.route) {
+                InsightsScreen()
             }
 
             composable(Route.Profile.route) {
