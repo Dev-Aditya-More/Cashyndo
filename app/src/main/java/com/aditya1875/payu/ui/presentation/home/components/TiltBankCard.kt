@@ -107,11 +107,9 @@ fun TiltBankCard(
     ) {
         Box(
             modifier = Modifier
-                .size(160.dp)
-                .align(Alignment.TopEnd)
-                .offset(x = 50.dp, y = (-50).dp)
-                .clip(CircleShape)
-                .background(Color.White)
+                .size(160.dp).align(Alignment.TopEnd)
+                .offset(x = 50.dp, y = (-50).dp).clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.06f))
         )
 
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {

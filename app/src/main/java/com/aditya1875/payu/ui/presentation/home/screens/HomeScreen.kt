@@ -78,7 +78,7 @@ fun HomeScreen() {
     )
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().navigationBarsPadding(),
         containerColor = background,
         floatingActionButton = {
             Box(

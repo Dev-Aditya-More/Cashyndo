@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -95,10 +96,14 @@ fun InsightsScreen() {
         Triple("EUR", "Euro", "\uD83C\uDDEA\uD83C\uDDFA")
     )
 
-    Scaffold(containerColor = background) { innerPadding ->
+    Scaffold(
+        containerColor = background,
+        modifier = Modifier
+            .fillMaxSize()
+            .navigationBarsPadding()
+    ) { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {

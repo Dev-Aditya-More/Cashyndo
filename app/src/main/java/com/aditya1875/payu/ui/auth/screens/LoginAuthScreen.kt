@@ -7,17 +7,21 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,8 +46,6 @@ fun LoginAuthScreen(navController: NavController) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     var isSignIn by remember { mutableStateOf(true) }
-
-    // Fields
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -62,9 +64,12 @@ fun LoginAuthScreen(navController: NavController) {
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         scope.launch {
-            val account = authUiClient.getSignedInAccountFromIntent(result.data!!)
-            account?.idToken?.let {
-                viewModel.signInWithGoogle(it)
+            val account = authUiClient.getSignedInAccountFromIntent(result.data ?: return@launch)
+            val idToken = account?.idToken
+            if (idToken != null) {
+                viewModel.signInWithGoogle(idToken)
+            } else {
+                // account or token null — surface a friendly error
             }
         }
     }
@@ -75,6 +80,16 @@ fun LoginAuthScreen(navController: NavController) {
                 popUpTo(Route.Auth.route) { inclusive = true }
             }
         }
+    }
+
+    // Clear errors when switching tabs
+    LaunchedEffect(isSignIn) {
+        viewModel.clearMessages()
+        fullName = ""
+        email = ""
+        password = ""
+        confirmPassword = ""
+        passwordVisible = false
     }
 
     Box(
@@ -90,9 +105,9 @@ fun LoginAuthScreen(navController: NavController) {
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(Modifier.height(72.dp))
 
-            Spacer(Modifier.height(80.dp))
-
+            // ── Logo ──────────────────────────────────────────────────────
             Box(
                 modifier = Modifier
                     .size(72.dp)
@@ -101,10 +116,8 @@ fun LoginAuthScreen(navController: NavController) {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    "P",
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = background
+                    "C", style = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.Bold, color = background
                     )
                 )
             }
@@ -112,60 +125,47 @@ fun LoginAuthScreen(navController: NavController) {
             Spacer(Modifier.height(20.dp))
 
             Text(
-                "Welcome to PayU",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = onBackground
-                )
+                "Welcome to Cashyndo",
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
             )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(6.dp))
 
             Text(
-                "Send money globally with the real exchange rate",
-                style = MaterialTheme.typography.bodyMedium,
-                color = onSurfaceVariant
+                "Smart money management, simplified",
+                style = MaterialTheme.typography.bodyMedium, color = onSurfaceVariant
             )
 
             Spacer(Modifier.height(32.dp))
 
+            // ── Card ──────────────────────────────────────────────────────
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
                 color = surface,
                 tonalElevation = 0.dp
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp)
-                ) {
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)) {
+
                     Text(
                         "Get started",
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold
-                        )
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                     )
-
-                    Spacer(Modifier.height(6.dp))
-
+                    Spacer(Modifier.height(4.dp))
                     Text(
-                        "Sign in to your account or create a new one",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = onSurfaceVariant
+                        if (isSignIn) "Sign in to your account" else "Create your free account",
+                        style = MaterialTheme.typography.bodySmall, color = onSurfaceVariant
                     )
 
                     Spacer(Modifier.height(16.dp))
 
-                    // Toggle
-                    AuthToggle(
-                        isSignIn = isSignIn,
-                        onToggle = { isSignIn = it }
-                    )
+                    AuthToggle(isSignIn = isSignIn, onToggle = { isSignIn = it })
 
                     Spacer(Modifier.height(20.dp))
 
-                    // Fields
+                    // Full name (sign up only)
                     AnimatedVisibility(
                         visible = !isSignIn,
                         enter = fadeIn() + expandVertically(),
@@ -175,34 +175,46 @@ fun LoginAuthScreen(navController: NavController) {
                             AuthFieldLabel("Full Name")
                             AuthTextField(
                                 value = fullName,
-                                onValueChange = { fullName = it },
-                                placeholder = "Enter your full name"
+                                onValueChange = { fullName = it; viewModel.clearError() },
+                                placeholder = "e.g. Aditya More"
                             )
                             Spacer(Modifier.height(16.dp))
                         }
                     }
 
+                    // Email
                     AuthFieldLabel("Email")
                     AuthTextField(
                         value = email,
-                        onValueChange = { email = it },
-                        placeholder = "Enter your email",
+                        onValueChange = { email = it; viewModel.clearError() },
+                        placeholder = "you@example.com",
                         keyboardType = KeyboardType.Email
                     )
 
                     Spacer(Modifier.height(16.dp))
 
+                    // Password
                     AuthFieldLabel("Password")
                     AuthTextField(
                         value = password,
-                        onValueChange = { password = it },
-                        placeholder = if (isSignIn) "Enter your password" else "Create a password",
+                        onValueChange = { password = it; viewModel.clearError() },
+                        placeholder = if (isSignIn) "Enter your password" else "Min. 8 chars, include a number",
                         keyboardType = KeyboardType.Password,
                         isPassword = true,
                         passwordVisible = passwordVisible,
                         onTogglePassword = { passwordVisible = !passwordVisible }
                     )
 
+                    // Password strength hint (sign up only)
+                    AnimatedVisibility(
+                        visible = !isSignIn && password.isNotEmpty(),
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically()
+                    ) {
+                        PasswordStrengthRow(password = password)
+                    }
+
+                    // Confirm password (sign up only)
                     AnimatedVisibility(
                         visible = !isSignIn,
                         enter = fadeIn() + expandVertically(),
@@ -213,29 +225,49 @@ fun LoginAuthScreen(navController: NavController) {
                             AuthFieldLabel("Confirm Password")
                             AuthTextField(
                                 value = confirmPassword,
-                                onValueChange = { confirmPassword = it },
-                                placeholder = "Confirm your password",
+                                onValueChange = { confirmPassword = it; viewModel.clearError() },
+                                placeholder = "Repeat your password",
                                 keyboardType = KeyboardType.Password,
                                 isPassword = true,
                                 passwordVisible = passwordVisible,
                                 onTogglePassword = { passwordVisible = !passwordVisible }
                             )
+                            // Match indicator
+                            if (confirmPassword.isNotEmpty()) {
+                                val matches = password == confirmPassword
+                                Row(
+                                    modifier = Modifier.padding(top = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        if (matches) Icons.Outlined.CheckCircle else Icons.Outlined.Warning,
+                                        contentDescription = null,
+                                        tint = if (matches) MaterialTheme.colorScheme.tertiary
+                                        else MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Text(
+                                        if (matches) "Passwords match" else "Passwords don't match",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = if (matches) MaterialTheme.colorScheme.tertiary
+                                        else MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
                         }
                     }
 
+                    // Forgot password link (sign in only)
                     if (isSignIn) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.End
                         ) {
-                            TextButton(onClick = {
-                                navController.navigate(Route.ForgotPassword.route)
-                            } ) {
+                            TextButton(onClick = { navController.navigate(Route.ForgotPassword.route) }) {
                                 Text(
                                     "Forgot password?",
-                                    style = MaterialTheme.typography.bodySmall.copy(
-                                        fontWeight = FontWeight.SemiBold
-                                    )
+                                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold)
                                 )
                             }
                         }
@@ -243,79 +275,103 @@ fun LoginAuthScreen(navController: NavController) {
                         Spacer(Modifier.height(16.dp))
                     }
 
-                    if (state.errorMessage != null) {
-                        Text(
-                            state.errorMessage!!,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
+                    // Error banner
+                    AnimatedVisibility(
+                        visible = state.errorMessage != null,
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically()
+                    ) {
+                        state.errorMessage?.let { msg ->
+                            MessageBanner(message = msg, isError = true)
+                        }
                     }
 
+                    // Success banner (email verification sent after signup)
+                    AnimatedVisibility(
+                        visible = state.successMessage != null && !isSignIn,
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically()
+                    ) {
+                        state.successMessage?.let { msg ->
+                            MessageBanner(message = msg, isError = false)
+                        }
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+
+                    // Primary CTA
+                    val btnScale by animateFloatAsState(
+                        targetValue = if (state.isLoading) 0.97f else 1f,
+                        animationSpec = spring(stiffness = Spring.StiffnessMedium),
+                        label = "btnScale"
+                    )
                     Button(
                         onClick = {
-                            if (isSignIn) {
-                                viewModel.signIn(email, password)
-                            } else {
-                                viewModel.signUp(fullName, email, password, confirmPassword)
-                            }
+                            if (isSignIn) viewModel.signIn(email, password)
+                            else viewModel.signUp(fullName, email, password, confirmPassword)
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(52.dp),
+                            .height(52.dp)
+                            .scale(btnScale),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = onBackground,
-                            contentColor = background
+                            containerColor = onBackground, contentColor = background
                         ),
                         enabled = !state.isLoading
                     ) {
-                        if (state.isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                color = background,
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Text(
-                                if (isSignIn) "Sign In" else "Create Account",
-                                style = MaterialTheme.typography.titleSmall.copy(
-                                    fontWeight = FontWeight.SemiBold
+                        AnimatedContent(
+                            targetState = state.isLoading,
+                            label = "btnContent"
+                        ) { loading ->
+                            if (loading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    color = background,
+                                    strokeWidth = 2.dp
                                 )
-                            )
+                            } else {
+                                Text(
+                                    if (isSignIn) "Sign In" else "Create Account",
+                                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold)
+                                )
+                            }
                         }
                     }
                 }
             }
-            Spacer(Modifier.height(10.dp))
 
+            Spacer(Modifier.height(16.dp))
+
+            // Divider
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Divider(modifier = Modifier.weight(1f), color = onSurfaceVariant.copy(0.3f))
-                Text(
-                    " OR ",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = onSurfaceVariant
+                HorizontalDivider(
+                    modifier = Modifier.weight(1f),
+                    color = onSurfaceVariant.copy(0.25f)
                 )
-                Divider(modifier = Modifier.weight(1f), color = onSurfaceVariant.copy(0.3f))
+                Text("  OR  ", style = MaterialTheme.typography.bodySmall, color = onSurfaceVariant)
+                HorizontalDivider(
+                    modifier = Modifier.weight(1f),
+                    color = onSurfaceVariant.copy(0.25f)
+                )
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(16.dp))
 
-            Button(
-                onClick = {
-                    launcher.launch(authUiClient.getSignInIntent())
-                },
+            // Google sign-in
+            OutlinedButton(
+                onClick = { launcher.launch(authUiClient.getSignInIntent()) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onBackground
-                )
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp, onSurfaceVariant.copy(alpha = 0.3f)
+                ),
+                enabled = !state.isLoading
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.icons8_google),
@@ -323,75 +379,124 @@ fun LoginAuthScreen(navController: NavController) {
                     tint = Color.Unspecified,
                     modifier = Modifier.size(20.dp)
                 )
-                Spacer(Modifier.width(8.dp))
-                Text("Continue with Google")
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    "Continue with Google",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = onBackground
+                )
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(32.dp))
         }
     }
 }
 
 @Composable
-private fun AuthToggle(
-    isSignIn: Boolean,
-    onToggle: (Boolean) -> Unit
-) {
-    val surface = MaterialTheme.colorScheme.surface
-    val onBackground = MaterialTheme.colorScheme.onBackground
-    val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
+private fun PasswordStrengthRow(password: String) {
+    val strength = when {
+        password.length >= 8 && password.any { it.isDigit() } && password.any { it.isUpperCase() } -> 3
+        password.length >= 8 && password.any { it.isDigit() } -> 2
+        password.length >= 8 -> 1
+        else -> 0
+    }
+    val label = listOf("Too short", "Weak", "Fair", "Strong")[strength]
+    val color = listOf(
+        MaterialTheme.colorScheme.error,
+        MaterialTheme.colorScheme.error,
+        MaterialTheme.colorScheme.secondary,
+        MaterialTheme.colorScheme.tertiary
+    )[strength]
 
-    Box(
+    Column(modifier = Modifier.padding(top = 6.dp, bottom = 2.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            (0..2).forEach { i ->
+                val filled = i < strength
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(3.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (filled) color else MaterialTheme.colorScheme.outlineVariant.copy(
+                                alpha = 0.4f
+                            )
+                        )
+                )
+            }
+        }
+        Spacer(Modifier.height(2.dp))
+        Text(label, style = MaterialTheme.typography.labelSmall, color = color)
+    }
+}
+
+@Composable
+private fun MessageBanner(message: String, isError: Boolean) {
+    val bgColor = if (isError) MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
+    else MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f)
+    val textColor = if (isError) MaterialTheme.colorScheme.error
+    else MaterialTheme.colorScheme.tertiary
+    val icon = if (isError) Icons.Outlined.Warning else Icons.Outlined.CheckCircle
+
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(50))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(bottom = 10.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(bgColor)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = textColor,
+            modifier = Modifier
+                .size(16.dp)
+                .padding(top = 1.dp)
+        )
+        Text(message, style = MaterialTheme.typography.bodySmall, color = textColor)
+    }
+}
 
-            // Sign In tab
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(50))
-                    .background(if (isSignIn) onBackground else Color.Transparent)
-                    .padding(vertical = 10.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                TextButton(
-                    onClick = { onToggle(true) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        "Sign In",
-                        color = if (isSignIn) surface else onSurfaceVariant,
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = if (isSignIn) FontWeight.SemiBold else FontWeight.Normal
-                        )
-                    )
-                }
-            }
+@Composable
+private fun AuthToggle(isSignIn: Boolean, onToggle: (Boolean) -> Unit) {
+    val bg = MaterialTheme.colorScheme.background
+    val onBg = MaterialTheme.colorScheme.onBackground
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    val surfVar = MaterialTheme.colorScheme.surfaceVariant
 
-            // Sign Up tab
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(50))
-                    .background(if (!isSignIn) onBackground else Color.Transparent)
-                    .padding(vertical = 10.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                TextButton(
-                    onClick = { onToggle(false) },
-                    modifier = Modifier.fillMaxWidth()
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .clip(RoundedCornerShape(50))
+        .background(surfVar)) {
+        Row(Modifier.fillMaxWidth()) {
+            listOf("Sign In" to true, "Sign Up" to false).forEach { (label, value) ->
+                val isActive = isSignIn == value
+                val scale by animateFloatAsState(
+                    if (isActive) 1f else 0.95f,
+                    spring(stiffness = Spring.StiffnessMediumLow),
+                    label = "toggle"
+                )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .scale(scale)
+                        .clip(RoundedCornerShape(50))
+                        .background(if (isActive) onBg else Color.Transparent)
+                        .padding(vertical = 10.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        "Sign Up",
-                        color = if (!isSignIn) surface else onSurfaceVariant,
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = if (!isSignIn) FontWeight.SemiBold else FontWeight.Normal
+                    TextButton(onClick = { onToggle(value) }, modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            label,
+                            color = if (isActive) bg else muted,
+                            style = MaterialTheme.typography.titleSmall.copy(
+                                fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal
+                            )
                         )
-                    )
+                    }
                 }
             }
         }
@@ -402,9 +507,7 @@ private fun AuthToggle(
 private fun AuthFieldLabel(text: String) {
     Text(
         text,
-        style = MaterialTheme.typography.titleSmall.copy(
-            fontWeight = FontWeight.SemiBold
-        ),
+        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
         modifier = Modifier.padding(bottom = 8.dp)
     )
 }
@@ -426,7 +529,7 @@ private fun AuthTextField(
         placeholder = {
             Text(
                 placeholder,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                 style = MaterialTheme.typography.bodyMedium
             )
         },
@@ -434,17 +537,13 @@ private fun AuthTextField(
         shape = RoundedCornerShape(12.dp),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         visualTransformation = if (isPassword && !passwordVisible)
-            PasswordVisualTransformation()
-        else
-            VisualTransformation.None,
+            PasswordVisualTransformation() else VisualTransformation.None,
         trailingIcon = if (isPassword) {
             {
                 IconButton(onClick = { onTogglePassword?.invoke() }) {
                     Icon(
-                        imageVector = if (passwordVisible)
-                            Icons.Outlined.VisibilityOff
-                        else
-                            Icons.Outlined.Visibility,
+                        imageVector = if (passwordVisible) Icons.Outlined.VisibilityOff
+                        else Icons.Outlined.Visibility,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -452,7 +551,7 @@ private fun AuthTextField(
             }
         } else null,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
+            focusedBorderColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
             unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
             focusedContainerColor = MaterialTheme.colorScheme.surface,
             unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)

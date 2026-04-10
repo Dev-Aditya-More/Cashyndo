@@ -26,14 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aditya1875.payu.ui.presentation.profile.viewmodel.ProfileViewModel
 import com.aditya1875.payu.ui.presentation.balances.viewmodel.TransactionViewModel
-import com.aditya1875.payu.ui.presentation.home.viewmodel.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth
 import org.koin.androidx.compose.koinViewModel
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel = koinViewModel(),
-    homeViewModel: HomeViewModel = koinViewModel(),
     transactionViewModel: TransactionViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -61,12 +59,14 @@ fun ProfileScreen(
     val userEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
 
     Scaffold(
-        containerColor = background
+        containerColor = background,
+        modifier = Modifier
+            .fillMaxSize()
+            .navigationBarsPadding()
     ) { innerPadding ->
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {
