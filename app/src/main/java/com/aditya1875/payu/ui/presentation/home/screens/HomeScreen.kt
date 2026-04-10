@@ -7,7 +7,6 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
@@ -29,12 +28,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aditya1875.payu.domain.models.Transaction
 import com.aditya1875.payu.ui.components.AddTransactionBottomSheet
@@ -43,7 +39,6 @@ import com.aditya1875.payu.ui.presentation.home.components.TiltBankCard
 import com.aditya1875.payu.ui.presentation.home.viewmodel.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth
 import org.koin.androidx.compose.koinViewModel
-import kotlin.math.abs
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -148,7 +143,6 @@ fun HomeScreen() {
                 }
             }
 
-            // ── Greeting ─────────────────────────────────────────────────
             Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                 Text(
                     "Hey, $firstName",
@@ -163,7 +157,6 @@ fun HomeScreen() {
 
             Spacer(Modifier.height(20.dp))
 
-            // ── Tilt Bank Card ───────────────────────────────────────────
             TiltBankCard(
                 cardNumber = "8763 1111 2222 0329",
                 cardHolder = firstName.uppercase(),
@@ -189,7 +182,6 @@ fun HomeScreen() {
 
             Spacer(Modifier.height(16.dp))
 
-            // ── Expense cards only ────────────────────────────────────────
             val expenses = state.recentTransactions
                 .filter { it.type == "expense" }
                 .groupBy { it.category }

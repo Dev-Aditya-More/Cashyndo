@@ -25,7 +25,6 @@ import org.koin.dsl.module
 
 val appModule = module {
 
-    // Firebase
     single { FirebaseAuth.getInstance() }
     single<AuthRepository> { AuthRepositoryImpl(get()) }
 
@@ -39,13 +38,10 @@ val appModule = module {
             .build()
     }
 
-    // DAO
     single { get<TransactionDatabase>().transactionDao() }
 
-    // Repository
     single<TransactionRepository> { TransactionRepositoryImpl(get()) }
 
-    // UseCases
     singleOf(::GetTransactionsUseCase)
     singleOf(::AddTransactionUseCase)
     singleOf(::DeleteTransactionUseCase)
@@ -53,12 +49,10 @@ val appModule = module {
     singleOf(::GetHomeDataUseCase)
     singleOf(::GetAnalyticsDataUseCase)
 
-    // ViewModels
     viewModelOf(::AuthViewModel)
     viewModelOf(::HomeViewModel)
     viewModelOf(::TransactionViewModel)
     viewModelOf(::ProfileViewModel)
 
-    // Google Auth
     singleOf(::GoogleAuthUIClient)
 }

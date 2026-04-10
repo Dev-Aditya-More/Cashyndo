@@ -68,8 +68,6 @@ fun LoginAuthScreen(navController: NavController) {
             val idToken = account?.idToken
             if (idToken != null) {
                 viewModel.signInWithGoogle(idToken)
-            } else {
-                // account or token null — surface a friendly error
             }
         }
     }
@@ -82,7 +80,6 @@ fun LoginAuthScreen(navController: NavController) {
         }
     }
 
-    // Clear errors when switching tabs
     LaunchedEffect(isSignIn) {
         viewModel.clearMessages()
         fullName = ""
@@ -107,7 +104,6 @@ fun LoginAuthScreen(navController: NavController) {
         ) {
             Spacer(Modifier.height(72.dp))
 
-            // ── Logo ──────────────────────────────────────────────────────
             Box(
                 modifier = Modifier
                     .size(72.dp)
@@ -116,7 +112,7 @@ fun LoginAuthScreen(navController: NavController) {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    "C", style = MaterialTheme.typography.headlineMedium.copy(
+                    "P", style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold, color = background
                     )
                 )
@@ -125,8 +121,9 @@ fun LoginAuthScreen(navController: NavController) {
             Spacer(Modifier.height(20.dp))
 
             Text(
-                "Welcome to Cashyndo",
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
+                "Welcome to PayU",
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                color = onBackground
             )
 
             Spacer(Modifier.height(6.dp))
@@ -138,7 +135,6 @@ fun LoginAuthScreen(navController: NavController) {
 
             Spacer(Modifier.height(32.dp))
 
-            // ── Card ──────────────────────────────────────────────────────
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -165,7 +161,6 @@ fun LoginAuthScreen(navController: NavController) {
 
                     Spacer(Modifier.height(20.dp))
 
-                    // Full name (sign up only)
                     AnimatedVisibility(
                         visible = !isSignIn,
                         enter = fadeIn() + expandVertically(),
@@ -182,7 +177,6 @@ fun LoginAuthScreen(navController: NavController) {
                         }
                     }
 
-                    // Email
                     AuthFieldLabel("Email")
                     AuthTextField(
                         value = email,
@@ -193,7 +187,6 @@ fun LoginAuthScreen(navController: NavController) {
 
                     Spacer(Modifier.height(16.dp))
 
-                    // Password
                     AuthFieldLabel("Password")
                     AuthTextField(
                         value = password,
@@ -205,7 +198,6 @@ fun LoginAuthScreen(navController: NavController) {
                         onTogglePassword = { passwordVisible = !passwordVisible }
                     )
 
-                    // Password strength hint (sign up only)
                     AnimatedVisibility(
                         visible = !isSignIn && password.isNotEmpty(),
                         enter = fadeIn() + expandVertically(),
@@ -214,7 +206,6 @@ fun LoginAuthScreen(navController: NavController) {
                         PasswordStrengthRow(password = password)
                     }
 
-                    // Confirm password (sign up only)
                     AnimatedVisibility(
                         visible = !isSignIn,
                         enter = fadeIn() + expandVertically(),
@@ -232,7 +223,6 @@ fun LoginAuthScreen(navController: NavController) {
                                 passwordVisible = passwordVisible,
                                 onTogglePassword = { passwordVisible = !passwordVisible }
                             )
-                            // Match indicator
                             if (confirmPassword.isNotEmpty()) {
                                 val matches = password == confirmPassword
                                 Row(
@@ -258,7 +248,6 @@ fun LoginAuthScreen(navController: NavController) {
                         }
                     }
 
-                    // Forgot password link (sign in only)
                     if (isSignIn) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -275,7 +264,6 @@ fun LoginAuthScreen(navController: NavController) {
                         Spacer(Modifier.height(16.dp))
                     }
 
-                    // Error banner
                     AnimatedVisibility(
                         visible = state.errorMessage != null,
                         enter = fadeIn() + expandVertically(),
@@ -286,7 +274,6 @@ fun LoginAuthScreen(navController: NavController) {
                         }
                     }
 
-                    // Success banner (email verification sent after signup)
                     AnimatedVisibility(
                         visible = state.successMessage != null && !isSignIn,
                         enter = fadeIn() + expandVertically(),
@@ -299,7 +286,6 @@ fun LoginAuthScreen(navController: NavController) {
 
                     Spacer(Modifier.height(8.dp))
 
-                    // Primary CTA
                     val btnScale by animateFloatAsState(
                         targetValue = if (state.isLoading) 0.97f else 1f,
                         animationSpec = spring(stiffness = Spring.StiffnessMedium),
@@ -343,7 +329,6 @@ fun LoginAuthScreen(navController: NavController) {
 
             Spacer(Modifier.height(16.dp))
 
-            // Divider
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
@@ -361,7 +346,6 @@ fun LoginAuthScreen(navController: NavController) {
 
             Spacer(Modifier.height(16.dp))
 
-            // Google sign-in
             OutlinedButton(
                 onClick = { launcher.launch(authUiClient.getSignInIntent()) },
                 modifier = Modifier

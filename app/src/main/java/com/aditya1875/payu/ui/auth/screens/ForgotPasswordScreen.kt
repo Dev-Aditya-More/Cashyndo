@@ -94,12 +94,12 @@ fun ForgotPasswordScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // ── Title ─────────────────────────────────────────────────────
             AnimatedContent(targetState = sent, label = "titleAnim") { isSent ->
                 Column {
                     Text(
                         if (isSent) "Check your inbox" else "Reset your password",
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                        color = onBackground
                     )
                     Spacer(Modifier.height(6.dp))
                     Text(

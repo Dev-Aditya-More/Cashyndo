@@ -2,7 +2,6 @@ package com.aditya1875.payu.ui.navigation
 
 sealed class Route(val route: String) {
 
-    // Root Graph
     object Splash : Route("splash")
 
     object Auth : Route("auth")
@@ -11,7 +10,6 @@ sealed class Route(val route: String) {
 
     object Main : Route("main")
 
-    // Bottom Navigation
     object Home : Route("home")
     object Balances : Route("balances")
     object Insights : Route("insights")
