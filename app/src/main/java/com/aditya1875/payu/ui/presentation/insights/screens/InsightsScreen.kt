@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.aditya1875.payu.domain.models.Transaction
 import com.aditya1875.payu.ui.presentation.balances.viewmodel.TransactionViewModel
 import com.aditya1875.payu.ui.presentation.insights.components.CreditScoreGauge
 import com.aditya1875.payu.ui.presentation.insights.components.SpendingBarChart
@@ -178,15 +179,13 @@ fun InsightsScreen() {
 
             Spacer(Modifier.height(24.dp))
 
-            // ── Credit Score Gauge ────────────────────────────────────────────
-            // Credit score is a static UI element (not derived from transactions)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
                 contentAlignment = Alignment.Center
             ) {
-                CreditScoreGauge(score = 660)
+                CreditScoreGauge(score = calculateScore(state.transactions))
             }
 
             Spacer(Modifier.height(32.dp))
@@ -299,4 +298,11 @@ fun InsightsScreen() {
             Spacer(Modifier.height(100.dp))
         }
     }
+}
+
+fun calculateScore(transactions: List<Transaction>): Int {
+    val spending = transactions.sumOf { it.amount }
+    val consistency = transactions.size
+
+    return (300 + (consistency * 10) - (spending / 100)).coerceIn(300.0, 850.0).toInt()
 }

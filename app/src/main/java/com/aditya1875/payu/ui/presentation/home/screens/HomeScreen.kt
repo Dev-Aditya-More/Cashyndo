@@ -35,6 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aditya1875.payu.domain.models.Transaction
 import com.aditya1875.payu.ui.components.AddTransactionBottomSheet
 import com.aditya1875.payu.ui.components.getCategoryIcon
+import com.aditya1875.payu.ui.presentation.home.components.CardDetailsBottomSheet
 import com.aditya1875.payu.ui.presentation.home.components.TiltBankCard
 import com.aditya1875.payu.ui.presentation.home.viewmodel.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -52,6 +53,9 @@ fun HomeScreen() {
 
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedPeriod by remember { mutableStateOf("Weekly") }
+
+    val cardDetails by viewModel.cardDetails.collectAsStateWithLifecycle()
+    var showCardEditor by remember { mutableStateOf(false) }
 
     val background = MaterialTheme.colorScheme.background
     val onBackground = MaterialTheme.colorScheme.onBackground
@@ -158,11 +162,13 @@ fun HomeScreen() {
             Spacer(Modifier.height(20.dp))
 
             TiltBankCard(
-                cardNumber = "8763 1111 2222 0329",
-                cardHolder = firstName.uppercase(),
-                expiryDate = "10/28",
-                bankName = "ADRBank",
-                modifier = Modifier.padding(horizontal = 20.dp)
+                cardNumber = cardDetails.maskedNumber,
+                cardHolder = cardDetails.cardHolder.ifBlank { firstName.uppercase() },
+                expiryDate = cardDetails.expiryDate.ifBlank { "••/••" },
+                bankName = cardDetails.bankName,
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .clickable { showCardEditor = true }   // tap card to edit
             )
 
             Spacer(Modifier.height(24.dp))
@@ -239,6 +245,17 @@ fun HomeScreen() {
                     showBottomSheet = false
                 },
                 onDismiss = { showBottomSheet = false }
+            )
+        }
+
+        if (showCardEditor) {
+            CardDetailsBottomSheet(
+                current = cardDetails,
+                onSave = { updated ->
+                    viewModel.saveCardDetails(updated)
+                    showCardEditor = false
+                },
+                onDismiss = { showCardEditor = false }
             )
         }
     }
@@ -397,4 +414,19 @@ private fun ExpenseCategoryCard(category: String, amount: String, trend: String)
             }
         }
     }
+}
+
+data class CardDetails(
+    val cardNumber: String = "",    // full 16-digit, stored encrypted/locally
+    val cardHolder: String = "",
+    val expiryDate: String = "",
+    val bankName: String = "My Bank"
+) {
+    val maskedNumber: String
+        get() {
+            val digits = cardNumber.replace(" ", "")
+            return if (digits.length >= 4)
+                "•••• •••• •••• ${digits.takeLast(4)}"
+            else "•••• •••• •••• ••••"
+        }
 }

@@ -8,8 +8,10 @@ import com.aditya1875.payu.domain.usecases.DeleteTransactionUseCase
 import com.aditya1875.payu.domain.usecases.GetHomeDataUseCase
 import com.aditya1875.payu.domain.usecases.HomeData
 import com.aditya1875.payu.domain.usecases.UpdateTransactionUseCase
+import com.aditya1875.payu.ui.presentation.home.screens.CardDetails
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -21,6 +23,14 @@ class HomeViewModel(
 
     private val _state = MutableStateFlow(HomeData(0.0, 0.0, 0.0, emptyList()))
     val state: StateFlow<HomeData> = _state
+
+    private val _cardDetails = MutableStateFlow(CardDetails())
+    val cardDetails: StateFlow<CardDetails> = _cardDetails.asStateFlow()
+
+    fun saveCardDetails(details: CardDetails) {
+        _cardDetails.value = details
+        // persist with DataStore or EncryptedSharedPreferences here
+    }
 
     init {
         println("HomeViewModel INIT START")
